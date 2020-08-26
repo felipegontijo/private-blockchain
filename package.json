@@ -9,7 +9,7 @@
   "keywords": [
     "blockchain"
   ],
-  "author": "Felipe Gontijo",
+  "author": "Felipe Gontijo & Jose Morales",
   "license": "ISC",
   "dependencies": {
     "bitcoinjs-lib": "^5.1.10",

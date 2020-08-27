@@ -6,11 +6,11 @@
  *  `this.chain = [];`. Of course each time you run the application the chain will be empty because an array
  *  isn't a persisten storage method.
  *  
- *  Boilerplate code by jose.morales@udacity.com
+ *  Based on code by jose.morales@udacity.com
  */
 
 const SHA256 = require('crypto-js/sha256');
-const BlockClass = require('./block.js');
+const Block = require('./block.js');
 const bitcoinMessage = require('bitcoinjs-message');
 
 class Blockchain {
@@ -18,7 +18,7 @@ class Blockchain {
     /**
      * Constructor of the class, you will need to setup your chain array and the height
      * of your chain (the length of your chain array).
-     * Also everytime you create a Blockchain class you will need to initialized the chain creating
+     * Also everytime you create a Blockchain class you will need to initialize the chain creating
      * the Genesis Block.
      * The methods in this class will always return a Promise to allow client applications or
      * other backends to call asynchronous functions.
@@ -29,45 +29,54 @@ class Blockchain {
         this.initializeChain();
     }
 
-    /**
-     * This method will check for the height of the chain and if there isn't a Genesis Block it will create it.
-     * You should use the `addBlock(block)` to create the Genesis Block
-     * Passing as a data `{data: 'Genesis Block'}`
-     */
     async initializeChain() {
-        if( this.height === -1){
-            let block = new BlockClass.Block({data: 'Genesis Block'});
+        // check if there is a Genesis block already
+        if( this.height === -1) {
+            let block = new Block.Block('Genesis Block');
             await this._addBlock(block);
         }
     }
 
-    /**
-     * Utility method that return a Promise that will resolve with the height of the chain
-     */
-    getChainHeight() {
-        return new Promise((resolve, reject) => {
-            resolve(this.height);
+    _addBlock(block) {
+        let self = this; // allows access to chain inside promise
+        return new Promise(async (resolve, reject) => {
+           try {
+               // assign previousHash if not genesis block
+               if (self.height >= 0) {
+                   block.previousHash = self.getLatestBlock().hash;
+                }
+               // we also need to assign the new block's correct height (currentHeight++)
+               block.height = self.height++;
+               // assign timestamp
+               block.timestamp = new Date().getTime().toString().slice(0, -3);
+               // generate block hash
+               block.hash = SHA256(JSON.stringify(block)).toString();
+               // push block onto the chain
+               self.chain.push(block);
+               // increment chain height
+               self.height = self.height++;
+               // resolve
+               resolve(block)
+           } catch (error) {
+               reject(error)
+           }
         });
     }
 
-    /**
-     * _addBlock(block) will store a block in the chain
-     * @param {*} block 
-     * The method will return a Promise that will resolve with the block added
-     * or reject if an error happen during the execution.
-     * You will need to check for the height to assign the `previousBlockHash`,
-     * assign the `timestamp` and the correct `height`...At the end you need to 
-     * create the `block hash` and push the block into the chain array. Don't for get 
-     * to update the `this.height`
-     * Note: the symbol `_` in the method name indicates in the javascript convention 
-     * that this method is a private method. 
-     */
-    _addBlock(block) {
+    getChainHeight() {
         let self = this;
-        return new Promise(async (resolve, reject) => {
-           
+        return new Promise((resolve, reject) => {
+            resolve(self.height);
         });
     }
+
+    getLatestBlock() {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            resolve(self.chain[self.getChainHeight()]);
+        })
+    }
+
 
     /**
      * The requestMessageOwnershipVerification(address) method

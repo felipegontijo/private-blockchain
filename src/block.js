@@ -20,8 +20,8 @@ class Block {
 		this.hash = null;                                           // Hash of the block
 		this.height = 0;                                            // Block Height (consecutive number of each block)
 		this.body = Buffer.from(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
-		this.time = 0;                                              // Timestamp for the Block creation
-		this.previousBlockHash = null;                              // Reference to the previous Block Hash
+		this.timestamp = 0;                                              // Timestamp for the Block creation
+		this.previousHash = null;                              // Reference to the previous Block Hash
     }
     
     /**
@@ -33,27 +33,42 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            let currentHash = self.hash;
-            let newHash = SHA256(JSON.stringify(self.getBData())).toString();
+            let currentHash = self.getHash();
+            let newHash = SHA256(JSON.stringify(self)).toString();
             
             resolve(currentHash===newHash);
         });
     }
 
-    /**
-     *  Auxiliary Method to return the block body (decoding the data)
-     *  
-     */
-    getBData() {
+    getDecodedData() {
         let encodedData = this.body;
         let decodedData = JSON.parse(hex2ascii(encodedData));
-        if (this.previousBlockHash !== null) {
+        if (this.previousHash !== null) {
             return decodedData;
         }
         else {
             console.log('Error: this is the genesis block!');
         }
     }
+
+    getHash() {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            resolve(self.hash);
+        })
+    }
+
+    // generateHash() {
+    //     let self = this;
+    //     return new Promise((resolve, reject) => {
+    //         try {
+    //             self.hash = SHA256(JSON.stringify(self)).toString();
+    //             resolve(self.hash);
+    //         } catch (error) {
+    //             reject(error);
+    //         }
+    //     })
+    // }
 
 }
 

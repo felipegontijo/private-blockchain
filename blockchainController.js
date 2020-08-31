@@ -1,10 +1,10 @@
 /**
- * Code by Jose Morales - jose.morales@udacity.com
+ *          BlockchainController
+ *       (Do not change this code)
  * 
- * This class exposes the endpoints that the client applications will use to interact with the 
+ * This class expose the endpoints that the client applications will use to interact with the 
  * Blockchain dataset
  */
-
 class BlockchainController {
 
     //The constructor receive the instance of the express.js app and the Blockchain class
@@ -54,7 +54,7 @@ class BlockchainController {
         });
     }
 
-    // Endpoint that allow Submit a Star, you need first to `requestOwnership` to have the message (POST endpoint)
+    // Endpoint that allow Submit a Star, yu need first to `requestOwnership` to have the message (POST endpoint)
     submitStar() {
         this.app.post("/submitstar", async (req, res) => {
             if(req.body.address && req.body.message && req.body.signature && req.body.star) {

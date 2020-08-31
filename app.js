@@ -1,44 +1,57 @@
-/* Adapted - based on code by Jose Morales - jose.morales@udacity.com */
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-const Blockchain = require('./src/blockchain');
+/**
+ *                 ApplicationServer
+ *             (Do not change this code)
+ * Require Modules to setup the REST Api
+ * - `express` Express.js is a Web Framework
+ * - `morgan` Isn't required but help with debugging and logging
+ * - `body-parser` This module allows to parse the body of the post request into a JSON
+ */
+const express = require("express");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+/**
+ * Require the Blockchain class. This allow us to have only one instance of the class.
+ */
+const BlockChain = require('./src/blockchain.js');
 
 class ApplicationServer {
 
-    constructor() {
-        this.app = express();
-        this.initExpress();
-        this.initMiddleware();
-        
-        this.blockchain = new Blockchain.Blockchain();
-        this.initControllers();
+	constructor() {
+		//Express application object
+		this.app = express();
+		//Blockchain class object
+		this.blockchain = new BlockChain.Blockchain();
+		//Method that initialized the express framework.
+		this.initExpress();
+		//Method that initialized middleware modules
+		this.initExpressMiddleWare();
+		//Method that initialized the controllers where you defined the endpoints
+		this.initControllers();
+		//Method that run the express application.
+		this.start();
+	}
 
-        this.spinServer();
-    }
+	initExpress() {
+		this.app.set("port", 8000);
+	}
 
-    initExpress() {
-        this.app.set('port', 8080);
-    }
-
-    initMiddleware() {
-        this.app.use(morgan("dev"));
+	initExpressMiddleWare() {
+		this.app.use(morgan("dev"));
 		this.app.use(bodyParser.urlencoded({extended:true}));
 		this.app.use(bodyParser.json());
-    }
+	}
 
-    initControllers() {
-        require('./blockchainController')(this.app, this.blockchain);
-    }
+	initControllers() {
+        require("./BlockchainController.js")(this.app, this.blockchain);
+	}
 
-    spinServer() {
-        let self = this;
-        this.app.listen(this.app.get('port'), () => {
-            console.log(`Server is listening on localhost:${self.app.get('port')}`);
-        })
-    }
+	start() {
+		let self = this;
+		this.app.listen(this.app.get("port"), () => {
+			console.log(`Server Listening for port: ${self.app.get("port")}`);
+		});
+	}
+
 }
 
 new ApplicationServer();
-

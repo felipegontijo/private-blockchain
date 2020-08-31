@@ -46,7 +46,7 @@ class Blockchain {
                    block.previousHash = self.getLatestBlock().hash;
                 }
                // we also need to assign the new block's correct height (currentHeight++)
-               block.height = self.height++;
+               block.height = self.height + 1;
                // assign timestamp
                block.timestamp = new Date().getTime().toString().slice(0, -3);
                // generate block hash
@@ -57,9 +57,9 @@ class Blockchain {
                self.height = self.height++;
                // resolve
                resolve(block)
-           } catch (error) {
-               reject(error)
-           }
+            } catch (error) {
+                reject(error)
+            }
         });
     }
 
@@ -88,7 +88,7 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            
+            resolve(`${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`);
         });
     }
 
@@ -112,7 +112,33 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            
+            try {
+                // grab time from message received
+                let messageTime = parseInt(message.split(':')[1]);
+                console.log(messageTime);
+                // get the current time and check if < 5 minutes difference
+                let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+                console.log(currentTime);
+                let timeDifference = currentTime - messageTime;
+                console.log(timeDifference);
+                if (timeDifference < 300000) {
+                    let messageIsVerified = bitcoinMessage.verify(message, address, signature);
+                    console.log(messageIsVerified);
+                    if (messageIsVerified) {
+                        let data = {
+                            owner: address,
+                            star: star
+                        }
+                        console.log(data);
+                        let block = new Block.Block(data);
+                        console.log(block);
+                        await self._addBlock(block);
+                        resolve(block);
+                    }
+                }
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
@@ -125,7 +151,12 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-           
+            try {
+                const desiredBlock = self.chain.filter(block => block.hash === hash);
+                resolve(desiredBlock);
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
@@ -152,11 +183,16 @@ class Blockchain {
      * Remember the star should be returned decoded.
      * @param {*} address 
      */
-    getStarsByWalletAddress (address) {
+    getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            
+            try {
+                stars = self.chain.filter(data => data.owner === address);
+                resolve(stars);   
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
@@ -170,7 +206,19 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            
+            self.chain.forEach(block => {
+                try {
+                    block.validate();
+                    if (block.previousHash !== null) {
+                        let chainValid = (auxHash === block.previousHash);
+                        if (!chainValid) throw error;
+                    }
+                } catch (error) {
+                    errorLog.push(error);
+                }
+                let auxHash = block.hash;
+            });
+            resolve(errorLog);
         });
     }
 

@@ -1,12 +1,11 @@
 /**
- *                          Blockchain Class
- *  The Blockchain class contain the basics functions to create the private blockchain
- *  It uses libraries like `crypto-js` to create the hashes for each block and `bitcoinjs-message` 
- *  to verify a message signature. The chain is stored in the array
- *  `this.chain = [];`. Of course each time you run the application the chain will be empty because an array
- *  isn't a persisten storage method.
+ *      The Blockchain class contain the basics functions to create the private blockchain
+ *      It uses libraries like `crypto-js` to create the hashes for each block and `bitcoinjs-message` 
+ *      to verify a message signature. The chain is stored in the array
+ *      `this.chain = [];`. Of course each time you run the application the chain will be empty because an array
+ *      isn't a persisten storage method.
  *  
- *  Based on code by jose.morales@udacity.com
+ *      Based on code by jose.morales@udacity.com
  */
 
 const SHA256 = require('crypto-js/sha256');
@@ -74,12 +73,10 @@ class Blockchain {
         })
     }
 
-
     /**
      * The requestMessageOwnershipVerification(address) method
      * will allow you  to request a message that you will use to
      * sign with your Bitcoin Wallet
-     * This is the first step before submitting your Block.
      * The method returns a Promise that will resolve with the message to be signed
      * @param {*} address 
      */
@@ -94,13 +91,6 @@ class Blockchain {
      * will allow users to register a new Block with the star object
      * into the chain. This method will resolve with the Block added or
      * reject with an error.
-     * Algorithm steps:
-     * 1. Get the time from the message sent as a parameter example: `parseInt(message.split(':')[1])`
-     * 2. Get the current time: `let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));`
-     * 3. Check if the time elapsed is less than 5 minutes
-     * 4. Veify the message with wallet address and signature: `bitcoinMessage.verify(message, address, signature)`
-     * 5. Create the block and add it to the chain
-     * 6. Resolve with the block added.
      * @param {*} address 
      * @param {*} message 
      * @param {*} signature 
@@ -136,7 +126,6 @@ class Blockchain {
     /**
      * This method will return a Promise that will resolve with the Block
      *  with the hash passed as a parameter.
-     * Search on the chain array for the block that has the hash.
      * @param {*} hash 
      */
     getBlockByHash(hash) {
@@ -170,8 +159,7 @@ class Blockchain {
 
     /**
      * This method will return a Promise that will resolve with an array of Stars objects existing in the chain 
-     * and are belongs to the owner with the wallet address passed as parameter.
-     * Remember the star should be returned decoded.
+     * that belongs to the owner with the wallet address passed as parameter.
      * @param {*} address 
      */
     getStarsByWalletAddress(address) {
@@ -188,9 +176,6 @@ class Blockchain {
 
     /**
      * This method will return a Promise that will resolve with the list of errors when validating the chain.
-     * Steps to validate:
-     * 1. You should validate each block using `validateBlock`
-     * 2. Each Block should check the with the previousBlockHash
      */
     validateChain() {
         let self = this;

@@ -30,7 +30,6 @@ class Blockchain {
     }
 
     async initializeChain() {
-        // check if there is a Genesis block already
         if( this.height === -1) {
             let block = new Block.Block('Genesis Block');
             await this._addBlock(block);
@@ -38,25 +37,23 @@ class Blockchain {
     }
 
     _addBlock(block) {
-        let self = this; // allows access to chain inside promise
+        let self = this;
         return new Promise(async (resolve, reject) => {
            try {
-               // assign previousHash if not genesis block
-               if (self.height >= 0) {
-                   block.previousHash = self.getLatestBlock().hash;
+               let newBlock = block;
+               let chainHeight = await self.getChainHeight();
+               newBlock.height = chainHeight + 1;
+               newBlock.timestamp = new Date().getTime().toString().slice(0, -3);
+               if (chainHeight >= 0) {
+                   let previousBlock = await self.getLastBlock();
+                   newBlock.previousHash = previousBlock.hash;
+                } else {
+                    newBlock.previousHash = null;
                 }
-               // we also need to assign the new block's correct height (currentHeight++)
-               block.height = self.height + 1;
-               // assign timestamp
-               block.timestamp = new Date().getTime().toString().slice(0, -3);
-               // generate block hash
-               block.hash = SHA256(JSON.stringify(block)).toString();
-               // push block onto the chain
-               self.chain.push(block);
-               // increment chain height
-               self.height = self.height++;
-               // resolve
-               resolve(block)
+               newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
+               self.chain.push(newBlock);
+               self.height = chainHeight + 1;
+               resolve(newBlock)
             } catch (error) {
                 reject(error)
             }
@@ -70,10 +67,10 @@ class Blockchain {
         });
     }
 
-    getLatestBlock() {
+    getLastBlock() {
         let self = this;
         return new Promise((resolve, reject) => {
-            resolve(self.chain[self.getChainHeight()]);
+            resolve(self.chain[self.height]);
         })
     }
 
@@ -81,9 +78,9 @@ class Blockchain {
     /**
      * The requestMessageOwnershipVerification(address) method
      * will allow you  to request a message that you will use to
-     * sign it with your Bitcoin Wallet (Electrum or Bitcoin Core)
-     * This is the first step before submit your Block.
-     * The method return a Promise that will resolve with the message to be signed
+     * sign with your Bitcoin Wallet
+     * This is the first step before submitting your Block.
+     * The method returns a Promise that will resolve with the message to be signed
      * @param {*} address 
      */
     requestMessageOwnershipVerification(address) {
@@ -115,23 +112,17 @@ class Blockchain {
             try {
                 // grab time from message received
                 let messageTime = parseInt(message.split(':')[1]);
-                console.log(messageTime);
                 // get the current time and check if < 5 minutes difference
                 let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-                console.log(currentTime);
                 let timeDifference = currentTime - messageTime;
-                console.log(timeDifference);
                 if (timeDifference < 300000) {
                     let messageIsVerified = bitcoinMessage.verify(message, address, signature);
-                    console.log(messageIsVerified);
                     if (messageIsVerified) {
                         let data = {
                             owner: address,
                             star: star
                         }
-                        console.log(data);
                         let block = new Block.Block(data);
-                        console.log(block);
                         await self._addBlock(block);
                         resolve(block);
                     }
@@ -152,7 +143,7 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
             try {
-                const desiredBlock = self.chain.filter(block => block.hash === hash);
+                const desiredBlock = self.chain.filter(block => block.hash === hash)[0];
                 resolve(desiredBlock);
             } catch (error) {
                 reject(error);
@@ -168,7 +159,7 @@ class Blockchain {
     getBlockByHeight(height) {
         let self = this;
         return new Promise((resolve, reject) => {
-            let block = self.chain.filter(p => p.height === height)[0];
+            let block = (self.chain.filter(b => b.height === height))[0];
             if(block){
                 resolve(block);
             } else {
@@ -185,11 +176,10 @@ class Blockchain {
      */
     getStarsByWalletAddress(address) {
         let self = this;
-        let stars = [];
         return new Promise((resolve, reject) => {
             try {
-                stars = self.chain.filter(data => data.owner === address);
-                resolve(stars);   
+                let stars = self.chain.filter(block => block.getDecodedData().owner === address)
+                resolve(stars);
             } catch (error) {
                 reject(error);
             }
@@ -215,6 +205,7 @@ class Blockchain {
                     }
                 } catch (error) {
                     errorLog.push(error);
+                    continue;
                 }
                 let auxHash = block.hash;
             });

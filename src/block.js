@@ -33,7 +33,7 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            let currentHash = self.getHash();
+            let currentHash = self.hash;
             self.hash = null; //reset hash for recalculation
             let newHash = SHA256(JSON.stringify(self)).toString();
             self.hash = currentHash;
@@ -44,33 +44,8 @@ class Block {
     getDecodedData() {
         let encodedData = this.body;
         let decodedData = JSON.parse(hex2ascii(encodedData));
-        if (this.previousHash !== null) {
-            return decodedData;
-        }
-        else {
-            console.log('Error: this is the genesis block!');
-        }
+        return decodedData;
     }
-
-    getHash() {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            resolve(self.hash);
-        })
-    }
-
-    // generateHash() {
-    //     let self = this;
-    //     return new Promise((resolve, reject) => {
-    //         try {
-    //             self.hash = SHA256(JSON.stringify(self)).toString();
-    //             resolve(self.hash);
-    //         } catch (error) {
-    //             reject(error);
-    //         }
-    //     })
-    // }
-
 }
 
 module.exports.Block = Block;

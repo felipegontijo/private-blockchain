@@ -34,8 +34,9 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             let currentHash = self.getHash();
+            self.hash = null; //reset hash for recalculation
             let newHash = SHA256(JSON.stringify(self)).toString();
-            
+            self.hash = currentHash;
             resolve(currentHash===newHash);
         });
     }

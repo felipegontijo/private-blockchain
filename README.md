@@ -1,4 +1,4 @@
-# Test Private Blockchain Application
+# Private Blockchain Application
 
 This is a private blockchain application created for exploring this unique and fascinating technology.
 

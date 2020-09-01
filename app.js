@@ -1,6 +1,8 @@
 /**
  *                 ApplicationServer
- *             (Do not change this code)
+ *      
+ * 			Initial code by jose.morales@udacity.com       
+ * 		
  * Require Modules to setup the REST Api
  * - `express` Express.js is a Web Framework
  * - `morgan` Isn't required but help with debugging and logging

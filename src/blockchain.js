@@ -169,10 +169,8 @@ class Blockchain {
         return new Promise((resolve, reject) => {
             try {
                 let stars = self.chain.filter(block => block.getDecodedData().owner === address)
-                stars.forEach(star => {
-                    star = star.getDecodedData();
-                })
-                resolve(stars);
+                let starsInfo = stars.map(star => star.getDecodedData())
+                resolve(starsInfo);
             } catch (error) {
                 reject(error);
             }
@@ -188,14 +186,13 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             self.chain.forEach(block => {
                 try {
-                    await block.validate();
+                    block.validate();
                     if (block.previousHash !== null) {
                         let chainValid = (auxHash === block.previousHash);
                         if (!chainValid) throw error;
                     }
                 } catch (error) {
                     errorLog.push(error);
-                    continue;
                 }
                 let auxHash = block.hash;
             });

@@ -41,9 +41,13 @@ class Block {
     }
 
     getDecodedData() {
-        let encodedData = this.body;
-        let decodedData = JSON.parse(hex2ascii(encodedData));
-        return decodedData;
+        if (this.height === 0) {
+            return 0;
+        } else {
+            let encodedData = this.body;
+            let decodedData = JSON.parse(hex2ascii(encodedData));
+            return decodedData;
+        }
     }
 }
 

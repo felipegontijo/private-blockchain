@@ -116,6 +116,8 @@ class Blockchain {
                         await self._addBlock(block);
                         resolve(block);
                     }
+                } else {
+                    reject('Time elapsed is greater than 5 minutes!')
                 }
             } catch (error) {
                 reject(error);

@@ -169,6 +169,9 @@ class Blockchain {
         return new Promise((resolve, reject) => {
             try {
                 let stars = self.chain.filter(block => block.getDecodedData().owner === address)
+                stars.forEach(star => {
+                    star = star.getDecodedData();
+                })
                 resolve(stars);
             } catch (error) {
                 reject(error);

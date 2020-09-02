@@ -1,9 +1,7 @@
 /**
- *      The Blockchain class contain the basics functions to create the private blockchain
- *      It uses libraries like `crypto-js` to create the hashes for each block and `bitcoinjs-message` 
- *      to verify a message signature. The chain is stored in the array
- *      `this.chain = [];`. Of course each time you run the application the chain will be empty because an array
- *      isn't a persisten storage method.
+ *      The Blockchain class uses libraries like `crypto-js` to create
+ *      the hashes for each block and `bitcoinjs-message` 
+ *      to verify a message signature.
  *  
  *      Based on code by jose.morales@udacity.com
  */
@@ -15,10 +13,7 @@ const bitcoinMessage = require('bitcoinjs-message');
 class Blockchain {
 
     /**
-     * Constructor of the class, you will need to setup your chain array and the height
-     * of your chain (the length of your chain array).
-     * Also everytime you create a Blockchain class you will need to initialize the chain creating
-     * the Genesis Block.
+     * Constructor of the class, initializes the chain creating the Genesis Block.
      * The methods in this class will always return a Promise to allow client applications or
      * other backends to call asynchronous functions.
      */
@@ -100,9 +95,7 @@ class Blockchain {
         let self = this;
         return new Promise(async (resolve, reject) => {
             try {
-                // grab time from message received
                 let messageTime = parseInt(message.split(':')[1]);
-                // get the current time and check if < 5 minutes difference
                 let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
                 let timeDifference = currentTime - messageTime;
                 if (timeDifference < 300000) {

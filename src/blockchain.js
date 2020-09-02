@@ -185,7 +185,7 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             self.chain.forEach(block => {
                 try {
-                    block.validate();
+                    await block.validate();
                     if (block.previousHash !== null) {
                         let chainValid = (auxHash === block.previousHash);
                         if (!chainValid) throw error;
